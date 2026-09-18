@@ -1,3 +1,6 @@
+# Introducing Loss
+# Calculate categorical cross-entropy loss to measure how wrong the network's predictions are
+
 import numpy as np
 import nnfs
 from nnfs.datasets import spiral_data
@@ -33,17 +36,21 @@ class Loss_CategoricalCrossentropy(Loss):
         samples = len(y_pred)
         y_pred_clipped = np.clip(y_pred, 1e-7, 1-1e-7) # clip infinite values
 
+        # Scalar class values:
+        # [0, 1, 1]
         if len(y_true.shape) == 1: # if true scalar class values
             correct_confidences = y_pred_clipped[range(samples), y_true]
 
+        # One-hot encoded:
+        # [[1, 0, 0],
+        #  [0, 1, 0],
+        #  [0, 1, 0]]
         elif len(y_true.shape) == 2: # one hot encoded vectors
             correct_confidences = np.sum(y_pred_clipped * y_true, axis=1)
-
-            '''
-            np.sum( [0.7, 0.1, 0.2],     *   [[1, 0, 0],             = [0.7,
-                    [0.1, 0.5, 0.4],          [0, 1, 0],                0.5,
-                    [0.02, 0.9, 0.08]]        [0, 1, 0]], axis=1)       0.9]
-            '''
+            
+            # np.sum( [0.7, 0.1, 0.2],     *   [[1, 0, 0],             = [0.7,
+            #         [0.1, 0.5, 0.4],          [0, 1, 0],                0.5,
+            #         [0.02, 0.9, 0.08]]        [0, 1, 0]], axis=1)       0.9]
 
         negative_log_likelihoods = -np.log(correct_confidences)
         return negative_log_likelihoods
